@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAN CLICKER</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    color: white;
+    background:
+        radial-gradient(circle at 30% 30%, #292950, #111122 55%, #050509);
+    overflow: hidden;
+}
+
+/* =========================
+   ИГРА
+========================= */
+
+#game {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 500px 20px 20px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 46px;
+    margin: 0 0 10px;
+    text-shadow: 0 0 20px #ffd700;
+}
+
+.stats {
+    font-size: 20px;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.coin {
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    border: 9px solid #fff08a;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff36b,
+            #ffcf00 45%,
+            #d88b00 100%
+        );
+
+    box-shadow:
+        0 0 35px #ffd000,
+        inset 0 0 30px #fff6a0;
+
+    color: #6c4100;
+
+    font-size: 48px;
+    font-weight: bold;
+
+    cursor: pointer;
+    user-select: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: 0.08s;
+
+    margin: 10px;
+}
+
+.coin:active {
+    transform: scale(0.94);
+}
+
+.small {
+    opacity: 0.8;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+#message {
+    height: 25px;
+    margin: 5px;
+    font-weight: bold;
+}
+
+
+/* =========================
+   МАГАЗИН
+========================= */
+
+#shop {
+    position: fixed;
+
+    right: 8px;
+    top: 8px;
+
+    width: 470px;
+    height: calc(100vh - 16px);
+
+    background: rgba(12, 12, 25, 0.97);
+
+    border: 2px solid #494975;
+    border-radius: 18px;
+
+    box-shadow: 0 0 30px #000;
+
+    padding: 14px;
+
+    overflow-y: auto;
+
+    z-index: 10;
+}
+
+#shop.hidden {
+    display: none;
+}
+
+.shopTop {
+    display: flex;
+    gap: 7px;
+
+    position: sticky;
+    top: 0;
+
+    background: #0c0c19;
+
+    padding-bottom: 10px;
+
+    z-index: 2;
+}
+
+.shopTop h2 {
+    margin: 8px auto 0 0;
+    font-size: 24px;
+}
+
+button {
+    border: 0;
+    border-radius: 10px;
+
+    padding: 10px 12px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    background: #29294b;
+    color: white;
+
+    transition: 0.1s;
+}
+
+button:hover {
+    filter: brightness(1.25);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+.close {
+    background: #8f2638;
+    font-size: 18px;
+}
+
+
+/* =========================
+   КНОПКА ОТКРЫТИЯ
+========================= */
+
+#openShop {
+    position: fixed;
+
+    right: 18px;
+    top: 18px;
+
+    z-index: 5;
+
+    display: none;
+
+    background: #ffd21a;
+    color: #5b3900;
+
+    font-size: 17px;
+
+    box-shadow: 0 0 18px #ffd21a;
+}
+
+#openShop.show {
+    display: block;
+}
+
+
+/* =========================
+   СЕКЦИИ
+========================= */
+
+.section {
+    margin-top: 12px;
+
+    padding: 9px;
+
+    border-radius: 13px;
+
+    background: rgba(255,255,255,0.035);
+
+    border: 1px solid #30304f;
+}
+
+.section h3 {
+    margin: 2px 0 8px;
+
+    color: #ffd83d;
+}
+
+
+/* =========================
+   КНОПКИ УЛУЧШЕНИЙ
+========================= */
+
+.upgrade {
+    width: 100%;
+
+    text-align: left;
+
+    margin: 6px 0;
+
+    padding: 11px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #202044,
+            #17172f
+        );
+
+    border: 1px solid #3d3d65;
+}
+
+.upgrade strong {
+    display: block;
+
+    font-size: 16px;
+}
+
+.upgrade span {
+    display: block;
+
+    font-size: 12px;
+
+    opacity: 0.8;
+
+    margin-top: 3px;
+}
+
+.price {
+    color: #ffd83d !important;
+
+    font-size: 14px !important;
+
+    opacity: 1 !important;
+}
+
+.upgrade:disabled {
+    opacity: 0.4;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================
+   CHAOS
+========================= */
+
+.chaos {
+    border-color: #ff2bcb !important;
+
+    box-shadow:
+        0 0 15px #ff2bcb;
+}
+
+.chaos:hover {
+    box-shadow:
+        0 0 25px #ff2bcb;
+}
+
+
+/* =========================
+   НАСТРОЙКИ
+========================= */
+
+#settings {
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.75);
+
+    z-index: 30;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.settingsBox {
+    width: min(92vw, 420px);
+
+    background: #111126;
+
+    border: 2px solid #55558a;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    box-shadow: 0 0 35px #000;
+
+    text-align: center;
+}
+
+.settingsBox h2 {
+    margin-top: 0;
+}
+
+.settingsBox button {
+    width: 100%;
+
+    margin: 6px 0;
+}
+
+
+/* =========================
+   RESET
+========================= */
+
+.danger {
+    background: #7b2435 !important;
+}
+
+
+/* =========================
+   МОБИЛЬНЫЙ РЕЖИМ
+========================= */
+
+@media(max-width:1050px) {
+
+    body {
+        overflow: auto;
+    }
+
+    #game {
+        padding: 30px 15px;
+    }
+
+    #shop {
+        position: fixed;
+
+        width: min(95vw, 470px);
+
+        left: 50%;
+        right: auto;
+
+        transform: translateX(-50%);
+    }
+
+}
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     ИГРА
+========================= -->
+
+<div id="game">
+
+    <h1>
+        🔥 FAN CLICKER 🔥
+    </h1>
+
+
+    <div class="stats">
+
+        💰
+        <b id="coins">
+            0
+        </b>
+        коинов
+
+        <br>
+
+        ⚡ Сила клика:
+        <b id="power">
+            1
+        </b>
+
+        <br>
+
+        🤖 В секунду:
+        <b id="perSec">
+            0
+        </b>
+
+        <br>
+
+        ♻️ Перерождение:
+        <b id="rebirth">
+            0
+        </b>
+
+        |
+
+        Буст:
+        <b id="boost">
+            x1
+        </b>
+
+    </div>
+
+
+    <div id="message"></div>
+
+
+    <div
+        class="coin"
+        id="coin"
+    >
+        FAN
+    </div>
+
+
+    <div class="small">
+        Кликай по FAN и прокачивайся! 🔥
+    </div>
+
+</div>
+
+
+
+<!-- =========================
+     ОТКРЫТЬ МАГАЗИН
+========================= -->
+
+<button id="openShop">
+
+    🛒 ОТКРЫТЬ МАГАЗИН
+
+</button>
+
+
+
+<!-- =========================
+     МАГАЗИН
+========================= -->
+
+<aside id="shop">
+
+    <div class="shopTop">
+
+        <h2>
+            🛒 GIGA SHOP
+        </h2>
+
+
+        <button id="soundBtn">
+            🔊
+        </button>
+
+
+        <button id="settingsBtn">
+            ⚙️
+        </button>
+
+
+        <button
+            class="close"
+            id="closeShop"
+        >
+            ✖
+        </button>
+
+    </div>
+
+
+    <div id="shopContent"></div>
+
+
+    <button
+        class="danger"
+        style="width:100%;margin-top:12px"
+        id="reset"
+    >
+        ♻️ СБРОСИТЬ ПРОГРЕСС
+    </button>
+
+</aside>
+
+
+
+<!-- =========================
+     НАСТРОЙКИ
+========================= -->
+
+<div id="settings">
+
+    <div class="settingsBox">
+
+        <h2>
+            ⚙️ НАСТРОЙКИ
+        </h2>
+
+
+        <button id="settingsSound">
+            🔊 Звук ВКЛ
+        </button>
+
+
+        <button id="settingsClose">
+            ❌ Закрыть настройки
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* =========================
+   СОКРАЩЕНИЕ
+========================= */
+
+const $ = id =>
+    document.getElementById(id);
+
+
+/* =========================
+   ЗАГРУЗКА
+========================= */
+
+let coins =
+    Number(
+        localStorage.getItem("fc_coins")
+    ) || 0;
+
+
+let power =
+    Number(
+        localStorage.getItem("fc_power")
+    ) || 1;
+
+
+let rebirth =
+    Number(
+        localStorage.getItem("fc_rebirth")
+    ) || 0;
+
+
+let soundOn =
+    localStorage.getItem("fc_sound") !== "0";
+
+
+let levels =
+    JSON.parse(
+        localStorage.getItem("fc_levels") || "{}"
+    );
+
+
+/* =========================
+   УЛУЧШЕНИЯ
+========================= */
+
+const items = [
+
+    /* КЛИК */
+
+    {
+        id: "click1",
+
+        name: "⚡ Усилитель клика",
+
+        desc: "+1 к силе клика",
+
+        base: 50,
+
+        kind: "power",
+
+        amount: 1,
+
+        growth: 1.55
+    },
+
+
+    {
+        id: "click2",
+
+        name: "💥 Мощный модуль",
+
+        desc: "+10 к силе клика",
+
+        base: 800,
+
+        kind: "power",
+
+        amount: 10,
+
+        growth: 1.7
+    },
+
+
+    {
+        id: "click3",
+
+        name: "☄️ ЯДЕРНЫЙ КЛИК",
+
+        desc: "+100 к силе клика",
+
+        base: 15000,
+
+        kind: "power",
+
+        amount: 100,
+
+        growth: 1.85
+    },
+
+
+    {
+        id: "click4",
+
+        name: "🌌 КОСМИЧЕСКИЙ КЛИК",
+
+        desc: "+1000 к силе клика",
+
+        base: 500000,
+
+        kind: "power",
+
+        amount: 1000,
+
+        growth: 2
+    },
+
+
+    {
+        id: "click5",
+
+        name: "👑 КОРОЛЕВСКИЙ КЛИК",
+
+        desc: "+10 000 к силе клика",
+
+        base: 20000000,
+
+        kind: "power",
+
+        amount: 10000,
+
+        growth: 2.2
+    },
+
+
+    /* =========================
+       АВТОДОХОД
+    ========================= */
+
+    {
+        id: "auto1",
+
+        name: "🤖 Автокликер",
+
+        desc: "+1 коин в секунду",
+
+        base: 200,
+
+        kind: "auto",
+
+        amount: 1,
+
+        growth: 1.5
+    },
+
+
+    {
+        id: "auto2",
+
+        name: "🚀 Турбо-авто",
+
+        desc: "+5 коинов в секунду",
+
+        base: 5000,
+
+        kind: "auto",
+
+        amount: 5,
+
+        growth: 1.65
+    },
+
+
+    {
+        id: "auto3",
+
+        name: "🛸 Мега-авто",
+
+        desc: "+25 коинов в секунду",
+
+        base: 100000,
+
+        kind: "auto",
+
+        amount: 25,
+
+        growth: 1.8
+    },
+
+
+    {
+        id: "auto4",
+
+        name: "🌠 БОЖЕСТВЕННЫЙ АВТО",
+
+        desc: "+100 коинов в секунду",
+
+        base: 5000000,
+
+        kind: "auto",
+
+        amount: 100,
+
+        growth: 2
+    },
+
+
+    /* =========================
+       КРИТЫ
+    ========================= */
+
+    {
+        id: "crit",
+
+        name: "🎯 Критический удар",
+
+        desc: "+2% шанс нанести x10",
+
+        base: 2500,
+
+        kind: "crit",
+
+        amount: 2,
+
+        growth: 1.65
+    },
+
+
+    {
+        id: "megaCrit",
+
+        name: "💣 МЕГА-КРИТ",
+
+        desc: "+1% шанс нанести x100",
+
+        base: 250000,
+
+        kind: "megaCrit",
+
+        amount: 1,
+
+        growth: 1.9
+    },
+
+
+    {
+        id: "luck",
+
+        name: "🍀 Удача",
+
+        desc: "+1% к шансам критов",
+
+        base: 50000,
+
+        kind: "luck",
+
+        amount: 1,
+
+        growth: 1.8
+    },
+
+
+    /* =========================
+       ЭКОНОМИКА
+    ========================= */
+
+    {
+        id: "coinBonus",
+
+        name: "💰 Золотая экономика",
+
+        desc: "+10% коинов",
+
+        base: 10000,
+
+        kind: "coin",
+
+        amount: 0.10,
+
+        growth: 1.75
+    },
+
+
+    {
+        id: "coinMega",
+
+        name: "🤑 МЕГА ЭКОНОМИКА",
+
+        desc: "+100% коинов",
+
+        base: 1000000,
+
+        kind: "coin",
+
+        amount: 1,
+
+        growth: 2
+    },
+
+
+    {
+        id: "offline",
+
+        name: "🌙 Ночной доход",
+
+        desc: "+5% к авто-доходу",
+
+        base: 100000,
+
+        kind: "offline",
+
+        amount: 0.05,
+
+        growth: 1.9
+    }
+
+];
+
+
+/* =========================
+   УРОВЕНЬ
+========================= */
+
+function lvl(id) {
+
+    return levels[id] || 0;
+
+}
+
+
+/* =========================
+   ЦЕНА
+========================= */
+
+function cost(item) {
+
+    return Math.floor(
+        item.base *
+        Math.pow(
+            item.growth,
+            lvl(item.id)
+        )
+    );
+
+}
+
+
+/* =========================
+   БУСТ ПЕРЕРОЖДЕНИЯ
+========================= */
+
+function boost() {
+
+    return Math.min(
+        100,
+        rebirth + 1
+    );
+
+}
+
+
+/* =========================
+   МНОЖИТЕЛЬ КОИНОВ
+========================= */
+
+function multiplier() {
+
+    return (
+        1 +
+        lvl("coinBonus") * 0.1 +
+        lvl("coinMega")
+    );
+
+}
+
+
+/* =========================
+   ШАНС КРИТА
+========================= */
+
+function critChance() {
+
+    return Math.min(
+        90,
+
+        lvl("crit") * 2 +
+        lvl("luck") +
+        lvl("megaCrit")
+    );
+
+}
+
+
+/* =========================
+   АВТОДОХОД
+========================= */
+
+function autoRate() {
+
+    /*
+       ТЕПЕРЬ НЕ ПРОЦЕНТЫ!
+
+       Автокликер:
+       +1
+
+       Турбо:
+       +5
+
+       Мега:
+       +25
+
+       Божественный:
+       +100
+    */
+
+    let result =
+        (
+            lvl("auto1") * 1 +
+
+            lvl("auto2") * 5 +
+
+            lvl("auto3") * 25 +
+
+            lvl("auto4") * 100
+        );
+
+
+    /*
+       Ночной доход
+    */
+
+    result *=
+        (
+            1 +
+            lvl("offline") * 0.05
+        );
+
+
+    /*
+       CHAOS BREAKER
+
+       После покупки:
+       x1 000 000 авто-дохода
+    */
+
+    if (lvl("chaos")) {
+
+        result *= 1000000;
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =========================
+   ФОРМАТ ЧИСЕЛ
+========================= */
+
+function format(n) {
+
+    if (n < 1000) {
+
+        return Math.floor(n)
+            .toLocaleString("ru-RU");
+
+    }
+
+
+    const units = [
+
+        "K",
+        "M",
+        "B",
+        "T",
+        "Qa",
+        "Qi",
+        "Sx",
+        "Sp",
+        "Oc",
+        "No",
+        "Dc"
+
+    ];
+
+
+    let i = -1;
+
+
+    while (
+        n >= 1000 &&
+        i < units.length - 1
+    ) {
+
+        n /= 1000;
+
+        i++;
+
+    }
+
+
+    return (
+        n.toFixed(
+            n < 10
+                ? 2
+                : n < 100
+                ? 1
+                : 0
+        )
+        +
+        units[i]
+    );
+
+}
+
+
+/* =========================
+   СОХРАНЕНИЕ
+========================= */
+
+function save() {
+
+    localStorage.setItem(
+        "fc_coins",
+        coins
+    );
+
+
+    localStorage.setItem(
+        "fc_power",
+        power
+    );
+
+
+    localStorage.setItem(
+        "fc_rebirth",
+        rebirth
+    );
+
+
+    localStorage.setItem(
+        "fc_sound",
+        soundOn ? "1" : "0"
+    );
+
+
+    localStorage.setItem(
+        "fc_levels",
+        JSON.stringify(levels)
+    );
+
+}
+
+
+/* =========================
+   ЗВУК
+========================= */
+
+function beep(type) {
+
+    if (!soundOn) return;
+
+
+    try {
+
+        const audio =
+            new AudioContext();
+
+
+        const oscillator =
+            audio.createOscillator();
+
+
+        const gain =
+            audio.createGain();
+
+
+        oscillator.frequency.value =
+
+            type === "buy"
+                ? 700
+
+                : type === "rebirth"
+                ? 180
+
+                : type === "error"
+                ? 240
+
+                : 430;
+
+
+        oscillator.type =
+            type === "rebirth"
+                ? "sawtooth"
+                : "sine";
+
+
+        gain.gain.setValueAtTime(
+            0.07,
+            audio.currentTime
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audio.currentTime + 0.12
+        );
+
+
+        oscillator.connect(gain);
+
+        gain.connect(audio.destination);
+
+
+        oscillator.start();
+
+
+        oscillator.stop(
+            audio.currentTime + 0.12
+        );
+
+    }
+
+    catch (e) {}
+
+}
+
+
+/* =========================
+   СООБЩЕНИЕ
+========================= */
+
+function say(text) {
+
+    $("message").textContent =
+        text;
+
+
+    setTimeout(() => {
+
+        if (
+            $("message").textContent === text
+        ) {
+
+            $("message").textContent =
+                "";
+
+        }
+
+    }, 1300);
+
+}
+
+
+/* =========================
+   ПОКУПКА
+========================= */
+
+function buy(id) {
+
+    const item =
+        items.find(
+            x => x.id === id
+        );
+
+
+    const price =
+        cost(item);
+
+
+    if (coins < price) {
+
+        beep("error");
+
+        say(
+            "❌ Не хватает коинов!"
+        );
+
+        return;
+
+    }
+
+
+    coins -= price;
+
+
+    levels[id] =
+        (levels[id] || 0) + 1;
+
+
+    if (
+        item.kind === "power"
+    ) {
+
+        power += item.amount;
+
+    }
+
+
+    beep("buy");
+
+
+    say(
+        "✅ Улучшение куплено!"
+    );
+
+
+    save();
+
+
+    render();
+
+}
+
+
+/* =========================
+   CHAOS BREAKER
+========================= */
+
+function buyChaos() {
+
+    /*
+       5 ТРИЛЛИОНОВ
+    */
+
+    const price =
+        5000000000000;
+
+
+    if (coins < price) {
+
+        beep("error");
+
+        say(
+            "❌ Нужно 5T коинов!"
+        );
+
+        return;
+
+    }
+
+
+    coins -= price;
+
+
+    /*
+       Сильный дисбаланс
+    */
+
+    power *= 1000000;
+
+
+    levels.chaos =
+        (levels.chaos || 0) + 1;
+
+
+    beep("rebirth");
+
+
+    say(
+        "☢️ CHAOS BREAKER! x1 000 000!"
+    );
+
+
+    save();
+
+
+    render();
+
+}
+
+
+/* =========================
+   ПЕРЕРОЖДЕНИЕ
+========================= */
+
+function rebirthBuy() {
+
+    if (rebirth >= 100) {
+
+        say(
+            "👑 Максимальное перерождение!"
+        );
+
+        return;
+
+    }
+
+
+    const price =
+        Math.floor(
+            100000 *
+            Math.pow(
+                2,
+                rebirth
+            )
+        );
+
+
+    if (coins < price) {
+
+        beep("error");
+
+        say(
+            "❌ Нужно " +
+            format(price) +
+            " коинов!"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Сбрасываем обычную прокачку
+    */
+
+    coins = 0;
+
+    power = 1;
+
+    levels = {};
+
+
+    /*
+       +1 к перерождению
+    */
+
+    rebirth++;
+
+
+    beep("rebirth");
+
+
+    say(
+        "♻️ ПЕРЕРОЖДЕНИЕ! Буст x" +
+        boost()
+    );
+
+
+    save();
+
+
+    render();
+
+}
+
+
+/* =========================
+   ОТРИСОВКА
+========================= */
+
+function render() {
+
+    $("coins").textContent =
+        format(coins);
+
+
+    $("power").textContent =
+        format(power);
+
+
+    $("perSec").textContent =
+        format(
+            autoRate() *
+            boost() *
+            multiplier()
+        );
+
+
+    $("rebirth").textContent =
+        rebirth;
+
+
+    $("boost").textContent =
+        "x" +
+        boost();
+
+
+    $("soundBtn").textContent =
+        soundOn
+            ? "🔊"
+            : "🔇";
+
+
+    let html = "";
+
+
+    /* =========================
+       ГРУППЫ
+    ========================= */
+
+    const groups = [
+
+        [
+            "⚡ КЛИКИ",
+
+            items.filter(
+                x =>
+                    x.kind === "power"
+            )
+        ],
+
+
+        [
+            "🤖 АВТО-ДОХОД",
+
+            items.filter(
+                x =>
+                    x.kind === "auto"
+            )
+        ],
+
+
+        [
+            "🎯 КРИТЫ",
+
+            items.filter(
+                x =>
+                    [
+                        "crit",
+                        "megaCrit",
+                        "luck"
+                    ].includes(x.kind)
+            )
+        ],
+
+
+        [
+            "💰 ЭКОНОМИКА",
+
+            items.filter(
+                x =>
+                    x.kind === "coin" ||
+                    x.kind === "offline"
+            )
+        ]
+
+    ];
+
+
+    /* =========================
+       СОЗДАНИЕ КНОПОК
+    ========================= */
+
+    for (
+        const [title, list]
+        of groups
+    ) {
+
+        html += `
+
+            <div class="section">
+
+                <h3>
+                    ${title}
+                </h3>
+
+        `;
+
+
+        for (
+            const item
+            of list
+        ) {
+
+            html += `
+
+                <button
+                    class="upgrade"
+                    onclick="buy('${item.id}')"
+                >
+
+                    <strong>
+
+                        ${item.name}
+
+                        <small>
+                            LV.${lvl(item.id)}
+                        </small>
+
+                    </strong>
+
+
+                    <span>
+                        ${item.desc}
+                    </span>
+
+
+                    <span class="price">
+
+                        💰
+                        ${format(
+                            cost(item)
+                        )}
+
+                    </span>
+
+                </button>
+
+            `;
+
+        }
+
+
+        html += `
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================
+       CHAOS BREAKER
+    ========================= */
+
+    html += `
+
+        <div class="section">
+
+            <h3>
+                ☢️ ДИСКАЛИБР
+            </h3>
+
+
+            <button
+                class="upgrade chaos"
+                onclick="buyChaos()"
+            >
+
+                <strong>
+                    ☢️ CHAOS BREAKER
+                </strong>
+
+
+                <span>
+                    Цена: 5T
+                </span>
+
+
+                <span>
+                    x1 000 000 к силе клика
+                </span>
+
+
+                <span>
+                    x1 000 000 к авто-доходу
+                </span>
+
+
+                <span class="price">
+                    💰 5T
+                </span>
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    /* =========================
+       ПЕРЕРОЖДЕНИЕ
+    ========================= */
+
+    const rebirthPrice =
+        Math.floor(
+            100000 *
+            Math.pow(
+                2,
+                rebirth
+            )
+        );
+
+
+    html += `
+
+        <div class="section">
+
+            <h3>
+                ♻️ ПЕРЕРОЖДЕНИЕ
+            </h3>
+
+
+            <div
+                style="
+                    font-size:14px;
+                    margin-bottom:8px
+                "
+            >
+
+                Текущий буст:
+
+                <b>
+                    x${boost()}
+                </b>
+
+                <br>
+
+
+                Следующий:
+
+                <b>
+                    x${Math.min(
+                        100,
+                        boost() + 1
+                    )}
+                </b>
+
+            </div>
+
+
+            <button
+                class="upgrade"
+                onclick="rebirthBuy()"
+
+                ${
+                    rebirth >= 100
+                        ? "disabled"
+                        : ""
+                }
+            >
+
+                <strong>
+                    ♻️ ПЕРЕРОДИТЬСЯ
+                </strong>
+
+
+                <span>
+                    Сбросит обычную прокачку,
+                    но даст постоянный буст.
+                </span>
+
+
+                <span class="price">
+
+                    ${
+                        rebirth >= 100
+
+                        ? "👑 МАКСИМУМ"
+
+                        : "💰 " +
+                          format(
+                              rebirthPrice
+                          )
+                    }
+
+                </span>
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    $("shopContent").innerHTML =
+        html;
+
+}
+
+
+/* =========================
+   КЛИК ПО МОНЕТЕ
+========================= */
+
+$("coin").onclick = () => {
+
+    let hit = power;
+
+
+    const random =
+        Math.random() * 100;
+
+
+    /* МЕГА-КРИТ */
+
+    if (
+        random <
+        lvl("megaCrit")
+    ) {
+
+        hit *= 100;
+
+
+        say(
+            "💣 МЕГА-КРИТ x100!"
+        );
+
+    }
+
+
+    /* ОБЫЧНЫЙ КРИТ */
+
+    else if (
+        random <
+        critChance()
+    ) {
+
+        hit *= 10;
+
+
+        say(
+            "🎯 КРИТ x10!"
+        );
+
+    }
+
+
+    coins +=
+        hit *
+        boost() *
+        multiplier();
+
+
+    beep("click");
+
+
+    save();
+
+
+    render();
+
+};
+
+
+/* =========================
+   ЗАКРЫТЬ МАГАЗИН
+========================= */
+
+$("closeShop").onclick = () => {
+
+    $("shop")
+        .classList
+        .add("hidden");
+
+
+    $("openShop")
+        .classList
+        .add("show");
+
+};
+
+
+/* =========================
+   ОТКРЫТЬ МАГАЗИН
+========================= */
+
+$("openShop").onclick = () => {
+
+    $("shop")
+        .classList
+        .remove("hidden");
+
+
+    $("openShop")
+        .classList
+        .remove("show");
+
+};
+
+
+/* =========================
+   ЗВУК
+========================= */
+
+$("soundBtn").onclick = () => {
+
+    soundOn = !soundOn;
+
+
+    save();
+
+
+    render();
+
+
+    beep("buy");
+
+};
+
+
+/* =========================
+   НАСТРОЙКИ
+========================= */
+
+$("settingsBtn").onclick = () => {
+
+    $("settings").style.display =
+        "flex";
+
+};
+
+
+$("settingsClose").onclick = () => {
+
+    $("settings").style.display =
+        "none";
+
+};
+
+
+$("settingsSound").onclick = () => {
+
+    soundOn = !soundOn;
+
+
+    save();
+
+
+    render();
+
+
+    $("settingsSound").textContent =
+
+        soundOn
+            ? "🔊 Звук ВКЛ"
+            : "🔇 Звук ВЫКЛ";
+
+
+    beep("buy");
+
+};
+
+
+/* =========================
+   СБРОС
+========================= */
+
+$("reset").onclick = () => {
+
+    if (
+        confirm(
+            "Точно сбросить ВСЁ?"
+        )
+    ) {
+
+        localStorage.clear();
+
+        location.reload();
+
+    }
+
+};
+
+
+/* =========================
+   АВТОДОХОД
+========================= */
+
+setInterval(() => {
+
+    const income =
+        autoRate() *
+        boost() *
+        multiplier();
+
+
+    coins += income;
+
+
+    save();
+
+
+    render();
+
+}, 1000);
+
+
+/* =========================
+   ЗАПУСК
+========================= */
+
+render();
+
+</script>
+
+</body>
+</html>
